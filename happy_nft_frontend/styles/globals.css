@@ -1,8 +1,12 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 html,
 body {
   padding: 0;
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen,
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen,
     Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif;
 }
 
@@ -13,4 +17,44 @@ a {
 
 * {
   box-sizing: border-box;
+}
+
+@layer utilities {
+  .text-glow {
+    text-shadow: 0 0 80px rgb(192 219 255 / 10%), 0 0 32px rgb(65 120 255 / 54%);
+  }
+
+  .gradient-border {
+    border: 2px double transparent;
+    background-image: linear-gradient(rgb(70 72 74), rgb(60 62 64)), radial-gradient(circle at left top, rgb(1, 110, 218), rgb(217, 0, 192));
+    background-origin: border-box;
+    background-clip: padding-box, border-box;
+  }
+
+  .flip {
+    width: 250px;
+    height: 250px;   
+    text-align: center;
+    perspective: 600px;
+  }
+  .flip-content {
+    width: 100%;
+    height: 100%;
+    transition: transform 0.9s;
+    transform-style: preserve-3d;
+  }
+  .flip:hover .flip-content {
+    transform: rotateY(180deg);
+    transition: transform 0.9s;
+  }
+  .flip-front, .flip-back {
+    position: absolute;
+    height: 100%;
+    width: 100%;
+    backface-visibility: hidden;    
+  }
+  .flip-back {
+    background-color: white;
+    transform: rotateY(180deg);
+  }
 }

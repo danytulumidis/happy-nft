@@ -7,10 +7,13 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 contract HappyNFT is ERC721, Ownable {
 
     uint256 public nftPrice = 0.001 ether;
-    uint256 public maxSupply = 50;
+    uint256 public maxSupply = 5;
     uint256 public nftIds = 0;
+    string public nftBaseURI;
 
-    constructor(string memory _name, string memory _symbol) ERC721(_name, _symbol) {}
+    constructor(string memory _name, string memory _symbol, string memory _nftBaseURI) ERC721(_name, _symbol) {
+        nftBaseURI = _nftBaseURI;
+    }
 
     function mint() public payable {
         require(msg.value >= nftPrice, "Your sent not enough ether!");
