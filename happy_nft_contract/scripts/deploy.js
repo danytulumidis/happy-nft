@@ -1,4 +1,5 @@
 const { ethers } = require("hardhat");
+const { METADATA_URL } = require("../constants");
 
 async function main() {
     // get the contract
@@ -8,6 +9,7 @@ async function main() {
     const deployedContract = await happyNFTContract.deploy(
         "Happy NFT",
         "HT",
+        METADATA_URL
     );
 
     // print the address of the deployed contract
