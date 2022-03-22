@@ -154,7 +154,7 @@ const Home: NextPage = () => {
         <p className="text-2xl text-glow">5 limited Happy NFTs to show your happiness to the world!</p>
 
         <div className="flex flex-col items-center">
-          <button className="px-9 py-5 text-2xl text-orange-600 font-semibold border border-orange-200 hover:text-white hover:bg-orange-600 hover:border-transparent focus:outline-none focus:ring-2 focus:ring-orange-600 focus:ring-offset-2 transition hover:-translate-y-2 duration-300 ease-in-out hover:scale-100 shadow-inner shadow-slate-50/50">Mint NFT</button>
+          <button onClick={() => mintNFT()} className="px-9 py-5 text-2xl text-orange-600 font-semibold border border-orange-200 hover:text-white hover:bg-orange-600 hover:border-transparent focus:outline-none focus:ring-2 focus:ring-orange-600 focus:ring-offset-2 transition hover:-translate-y-2 duration-300 ease-in-out hover:scale-100 shadow-inner shadow-slate-50/50">Mint NFT</button>
           <p className="text-gray-400">One NFT per Address</p>
         </div>
         {
