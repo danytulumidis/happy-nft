@@ -34,6 +34,10 @@ contract HappyNFT is ERC721, Ownable {
         nftPrice = _newPrice;
     }
 
+    function _baseURI() internal view virtual override returns (string memory) {
+        return nftBaseURI;
+    }
+
     receive() external payable {}
     fallback() external payable {}
 

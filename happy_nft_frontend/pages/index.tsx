@@ -7,6 +7,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { abi, NFT_ADDRESS } from '../constants';
 import NFTCard from '../components/NFTCard';
 import LoadingSpinner from '../components/LoadingSpinner';
+import UserNFT from '../components/UserNFT';
 
 const Home: NextPage = () => {
   const zero = BigNumber.from(0);
@@ -15,6 +16,7 @@ const Home: NextPage = () => {
   const [maximumNFTs, setMaximumNFTs] = useState(zero);
   const [loading, setLoading] = useState(false);
   const [nftID, setNftID] = useState(0);
+  const [allMinted, setAllMinted] = useState(false);
   
   const web3ModalRef: any = useRef();
 
@@ -38,7 +40,7 @@ const Home: NextPage = () => {
     }
   };
 
-  const getNFTsMintedCount = async () => {
+  const getNFTCount = async () => {
     try {
       const provider = await getProviderOrSigner();
       const happyNFTContract = new Contract(
@@ -46,27 +48,14 @@ const Home: NextPage = () => {
         abi,
         provider
       );
-        
-      const maxNFTCount = await happyNFTContract.maxSupply();
       
-      setMaximumNFTs(maxNFTCount);
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
-  const getMintedNFTs = async () => {
-    try {
-      const provider = await getProviderOrSigner();
-      const happyNFTContract = new Contract(
-        NFT_ADDRESS,
-        abi,
-        provider
-      );
-        
+      const maxNFTCount = await happyNFTContract.maxSupply();
       const mintedNFTs = await happyNFTContract.nftIds();
       
       setMintedNFTs(mintedNFTs);
+      setMaximumNFTs(maxNFTCount);
+      
+      setAllMinted(mintedNFTs === maxNFTCount);
     } catch (error) {
       console.log(error);
     }
@@ -74,7 +63,7 @@ const Home: NextPage = () => {
 
   const mintNFT = async () => {
     try {
-      const signer = await getProviderOrSigner(true);
+      const signer: any = await getProviderOrSigner(true);
       const happyNFTContract = new Contract(
         NFT_ADDRESS,
         abi,
@@ -87,6 +76,12 @@ const Home: NextPage = () => {
 
       setLoading(true);
       await tx.wait();
+
+      const userAddress = await signer.getAddress();
+      const nftID = await happyNFTContract.ownerNFT(userAddress);
+
+      setNftID(nftID);
+      setMintedNFTs(mintedNFTs.add(1));
       setLoading(false);
 
     } catch (err) {
@@ -133,10 +128,9 @@ const Home: NextPage = () => {
       setLoading(true);
       
       connectWallet();
-      getNFTsMintedCount();
-      getMintedNFTs();
+      getNFTCount();
       getUserNFT();
-
+      
       setLoading(false);
     }
   },[walletConnected]);
@@ -153,23 +147,47 @@ const Home: NextPage = () => {
         <h1 className="text-9xl pb-2 font-extrabold bg-clip-text text-transparent bg-gradient-to-r  from-violet-500 to-orange-500">Happy NFT Collection</h1>
         <p className="text-2xl text-glow">5 limited Happy NFTs to show your happiness to the world!</p>
 
-        <div className="flex flex-col items-center">
-          <button onClick={() => mintNFT()} className="px-9 py-5 text-2xl text-orange-600 font-semibold border border-orange-200 hover:text-white hover:bg-orange-600 hover:border-transparent focus:outline-none focus:ring-2 focus:ring-orange-600 focus:ring-offset-2 transition hover:-translate-y-2 duration-300 ease-in-out hover:scale-100 shadow-inner shadow-slate-50/50">Mint NFT</button>
-          <p className="text-gray-400">One NFT per Address</p>
-        </div>
         {
-          loading ? <LoadingSpinner /> :
-          <React.Fragment>
-            <div className="flex flex-col items-center">
-              <h2 className="bg-clip-text text-transparent bg-gradient-to-r from-violet-500 to-orange-500 font-semibold">Your Happy NFT</h2>
-              <NFTCard nftID={nftID} />
-            </div>
-              <div className="flex flex-row gap-10">
-                <InfoCard info="NFTs minted" tokenAmount={mintedNFTs.toNumber()}/>
-                <InfoCard info="Maximum NFTs" tokenAmount={maximumNFTs.toNumber()}/>
-              </div>
-          </React.Fragment>
+          !allMinted &&
+          <div className="flex flex-col items-center">
+            <React.Fragment>
+              <button onClick={() => mintNFT()} className="px-9 py-5 text-2xl text-orange-600 font-semibold border border-orange-200 hover:text-white hover:bg-orange-600 hover:border-transparent focus:outline-none focus:ring-2 focus:ring-orange-600 focus:ring-offset-2 transition hover:-translate-y-2 duration-300 ease-in-out hover:scale-100 shadow-inner shadow-slate-50/50">Mint NFT</button>
+              <p className="text-gray-400">One NFT per Address</p>
+            </React.Fragment>
+          </div>
         }
+
+        {
+          allMinted && nftID == 0 ?
+            <React.Fragment>
+              <h3 className="text-center text-2xl">All NFTs are already minted!</h3>
+              <div className="flex sm:flex-col md:flex-row">
+                {
+                  [...Array(5)].map((x, i) => <UserNFT key={i} nftID={i+1} />)
+                }
+              </div>
+            </React.Fragment>
+          :
+            <React.Fragment>
+              {
+                loading ? <LoadingSpinner /> :
+                <React.Fragment>
+                  { 
+                    nftID == 0 ? <p className="text-2xl">You own no NFTs but can mint one!</p> :
+                      <div className="flex flex-col items-center">
+                        <h2 className="bg-clip-text text-transparent bg-gradient-to-r from-violet-500 to-orange-500 font-semibold">Your Happy NFT</h2>
+                        <NFTCard nftID={nftID} />
+                      </div>
+                  }
+                  
+                </React.Fragment>
+              }
+            </React.Fragment>
+        }
+        <div className="flex flex-row gap-10">
+          <InfoCard info="NFTs minted" tokenAmount={mintedNFTs.toNumber()}/>
+          <InfoCard info="Maximum NFTs" tokenAmount={maximumNFTs.toNumber()}/>
+        </div>
       </main>
 
       <footer className="absolute inset-x-0 bottom-0">
