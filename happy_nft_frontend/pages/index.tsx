@@ -17,10 +17,24 @@ const Home: NextPage = () => {
   const [loading, setLoading] = useState(false);
   const [nftID, setNftID] = useState(0);
   const [allMinted, setAllMinted] = useState(false);
+  const [error, setError] = useState("");
   
   const web3ModalRef: any = useRef();
 
-  const getUserNFT = async () => {
+  const handleError = (error: any): void => {
+    // Somehow truncate only the relevant error message
+    const pos: number = error.message.search("reverted") + 10;
+    const posEnd: number = error.message.search("data") - 2;
+
+    const errorText: string = error.message.substring(pos, posEnd);
+    
+    setError(errorText);
+    setTimeout(() => {
+      setError("");
+    }, 5000);
+  }
+
+  const getUserNFT = async (): Promise<void> => {
     try {
       const provider = await getProviderOrSigner();
       const happyNFTContract = new Contract(
@@ -36,11 +50,11 @@ const Home: NextPage = () => {
 
       setNftID(nftID);
     } catch (error) {
-      console.log(error);
+      handleError(error);
     }
   };
 
-  const getNFTCount = async () => {
+  const getNFTCount = async (): Promise<void> => {
     try {
       const provider = await getProviderOrSigner();
       const happyNFTContract = new Contract(
@@ -57,11 +71,11 @@ const Home: NextPage = () => {
       
       setAllMinted(mintedNFTs === maxNFTCount);
     } catch (error) {
-      console.log(error);
+      handleError(error);
     }
   };
 
-  const mintNFT = async () => {
+  const mintNFT = async (): Promise<void> => {
     try {
       const signer: any = await getProviderOrSigner(true);
       const happyNFTContract = new Contract(
@@ -84,8 +98,8 @@ const Home: NextPage = () => {
       setMintedNFTs(mintedNFTs.add(1));
       setLoading(false);
 
-    } catch (err) {
-      console.error(err);
+    } catch (error) {
+      handleError(error);
     }
   };
 
@@ -109,12 +123,12 @@ const Home: NextPage = () => {
     return web3Provider;
   };
 
-  const connectWallet = async () => {
+  const connectWallet = async (): Promise<void> => {
     try {
       await getProviderOrSigner();
       setWalletConnected(true);
     } catch(error) {
-      console.log(error);
+      handleError(error);
     }
   };
 
@@ -147,17 +161,23 @@ const Home: NextPage = () => {
         <h1 className="text-9xl pb-2 font-extrabold bg-clip-text text-transparent bg-gradient-to-r  from-violet-500 to-orange-500">Happy NFT Collection</h1>
         <p className="text-2xl text-glow">5 limited Happy NFTs to show your happiness to the world!</p>
 
+        {/* Show the User the Mint button only if there are still NFTs left */}
         {
           !allMinted &&
           <div className="flex flex-col items-center">
-            <React.Fragment>
               <button onClick={() => mintNFT()} className="px-9 py-5 text-2xl text-orange-600 font-semibold border border-orange-200 hover:text-white hover:bg-orange-600 hover:border-transparent focus:outline-none focus:ring-2 focus:ring-orange-600 focus:ring-offset-2 transition hover:-translate-y-2 duration-300 ease-in-out hover:scale-100 shadow-inner shadow-slate-50/50">Mint NFT</button>
               <p className="text-gray-400">One NFT per Address</p>
-            </React.Fragment>
+              {
+                error &&
+                <div className="border-2 border-red-600 py-2 px-2 shadow-inner shadow-slate-400 w-2/4 mx-auto">
+                  <p className="text-red-600 text-2xl overflow-hidden">{error}</p>
+                </div>
+              }
           </div>
         }
 
         {
+          // If all NFTs are minted and the user doesnt own one show all of them
           allMinted && nftID == 0 ?
             <React.Fragment>
               <h3 className="text-center text-2xl">All NFTs are already minted!</h3>
@@ -168,11 +188,12 @@ const Home: NextPage = () => {
               </div>
             </React.Fragment>
           :
-            <React.Fragment>
+          <React.Fragment>
               {
                 loading ? <LoadingSpinner /> :
                 <React.Fragment>
                   { 
+                    // If the user doesnt own a NFT but can mint one otherwise show User their NFT
                     nftID == 0 ? <p className="text-2xl">You own no NFTs but can mint one!</p> :
                       <div className="flex flex-col items-center">
                         <h2 className="bg-clip-text text-transparent bg-gradient-to-r from-violet-500 to-orange-500 font-semibold">Your Happy NFT</h2>

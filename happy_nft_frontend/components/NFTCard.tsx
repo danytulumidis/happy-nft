@@ -3,7 +3,7 @@ import { BASE_URL } from '../constants';
 
 const NFTCard = (props: { nftID: number }) => {
     const { nftID } = props;
-    const baseURL = BASE_URL;
+    const baseURL: string = BASE_URL;
 
     return(
         <div className="flip max-w-sm mx-auto rounded-xl sm:flex sm:items-center sm:space-y-0 shadow-slate-50/40 gradient-border shadow-inner">

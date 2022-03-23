@@ -502,5 +502,5 @@ export const abi: any[] = [
     "type": "receive"
   }
 ];
-export const NFT_ADDRESS: string = "0xD001e49fa86426998eb91d49371b70E407E178ae";
+export const NFT_ADDRESS: string = "0x26A59A8beD5a524A56D0Bc56f421F9BCD44C2476";
 export const BASE_URL: string = "https://raw.githubusercontent.com/Dextavision/happy-nft/main/happy_nft_frontend/public/happyNFTs/happyNFT_";

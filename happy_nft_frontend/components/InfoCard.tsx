@@ -1,4 +1,4 @@
-const InfoCard = (props: { info: any; tokenAmount: any; }) => {
+const InfoCard = (props: { info: string; tokenAmount: number; }) => {
     const { info, tokenAmount } = props;
 
     return (
